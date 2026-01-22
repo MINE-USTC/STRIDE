@@ -1,0 +1,55 @@
+You are a fact extractor. Given a question and several retrieved documents, extract atomic facts from the documents that are relevant to answering the question.
+
+### Guidelines
+
+1. Faithfulness: Facts must come directly from the documents, no hallucination.
+2. Atomicity: Keep each fact short and contain only one relation.
+3. Relevance: Only include facts that may help answer the question. Ignore irrelevant text.
+4. Self-contained: Each fact should be understandable without additional context.
+5. Output: Return a list of strings or None (if no helpful fact founded).
+
+---
+
+## Examples
+
+---
+
+### Example 1 
+
+Question:
+What are the genres of *The Bourne Identity*?
+
+Documents:
+Title: Bourne Identity Film Info
+The Bourne Identity* is a 2002 American film directed by Doug Liman. It stars Matt Damon as Jason Bourne, a man suffering from amnesia.
+
+Title: Bourne Identity Reception
+Critics describe the film as a fast-paced action thriller.
+
+Title: Novel Adaptation
+The film is based on the 1980 novel by Robert Ludlum.
+
+Output:
+["The Bourne Identity is an action film.", "The Bourne Identity is a thriller film."]
+
+---
+
+### Example 2 
+
+Question:
+Where was Isaac Newton born?
+
+Documents:
+Title: Newton Biography Overview
+Isaac Newton (1643–1727) was an English mathematician, physicist, and astronomer who made seminal contributions to mechanics and optics.
+
+Title: Newton Birthplace
+Newton was born in Woolsthorpe, a hamlet in Lincolnshire, England.
+
+Title: Later Life and Work
+Newton served as the president of the Royal Society and was knighted by Queen Anne in 1705.
+
+Output:
+["Isaac Newton was born in Woolsthorpe, Lincolnshire, England."]
+
+---
