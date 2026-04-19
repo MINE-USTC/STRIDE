@@ -9,10 +9,10 @@ import sys
 import argparse
 import re
 
-from stride.contriever_model import load_contriever_and_tokenizer
-from stride.my_retriever import DenseRetriever
-from stride.paths import default_run_name
-from stride.utils import chat_vllm
+from contriever_model import load_contriever_and_tokenizer
+from my_retriever import DenseRetriever
+from paths import default_run_name
+from utils import chat_vllm
 
 STRIDE_ROOT = Path(__file__).resolve().parent
 
@@ -76,7 +76,7 @@ if __name__ == '__main__':
         help="Hugging Face model id or local path",
     )
     parser.add_argument(
-        '--faiss_index_path', type=str, default=None, help="default: stride/faiss_index/dataset/index"
+        '--faiss_index_path', type=str, default=None, help="default: faiss_index/dataset/index"
     )
     parser.add_argument(
         '--use_qwen3', type=bool, default=False, help="Whether to use qwen3"
@@ -88,7 +88,7 @@ if __name__ == '__main__':
         '--plan_file_name', type=str, default='meta_plan.jsonl', help='Under meta_plans/<run_name>/',
     )
     parser.add_argument(
-        '--used_result_file', type=str, default='plan/stride_top5.jsonl', help='Relative to stride/output/<run_name>/ (first segment = meta_plan version dir)',
+        '--used_result_file', type=str, default='plan/stride_top5.jsonl', help='Relative to output/<run_name>/ (first segment = meta_plan version dir)',
     )
     ### VLLM 参数
     parser.add_argument(

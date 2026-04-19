@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from stride.utils import get_answer, total_exact_match_score, total_f1_score
+from utils import get_answer, total_exact_match_score, total_f1_score
 
 
 def check_none_answer(answer: Any) -> bool:

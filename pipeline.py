@@ -1,8 +1,8 @@
 """
 STRIDE inference: Meta-Planner -> Supervisor (E+R) -> optional Fallback Reasoner.
 
-Runs stride modules as subprocesses; cwd is the directory that contains the
-``stride`` package (same layout as ``python -m stride.*`` expects).
+Runs other entrypoints as subprocesses with cwd set to the repository root
+(the directory that contains this file and ``meta_planer.py``, etc.).
 """
 
 from __future__ import annotations
@@ -13,9 +13,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from stride.paths import default_run_name
+from paths import default_run_name
 
-_REPO = Path(__file__).resolve().parent.parent
+_REPO = Path(__file__).resolve().parent
 _DEFAULT_FAISS = str(Path(__file__).resolve().parent / "faiss_index" / "dataset" / "index")
 
 
@@ -27,7 +27,7 @@ def run_meta_plan(args: argparse.Namespace) -> None:
     cmd = [
         _py(),
         "-m",
-        "stride.meta_planer",
+        "meta_planer",
         "--input_jsonl",
         args.input_jsonl,
         "--run_name",
@@ -65,7 +65,7 @@ def run_supervisor(args: argparse.Namespace, plan_file_name: str) -> None:
     cmd = [
         _py(),
         "-m",
-        "stride.supervisor",
+        "supervisor",
         "--input_jsonl",
         args.input_jsonl,
         "--run_name",
@@ -123,7 +123,7 @@ def run_fallback(args: argparse.Namespace, used_result_file: str, plan_file_name
     cmd = [
         _py(),
         "-m",
-        "stride.fallback_qa",
+        "fallback_qa",
         "--run_name",
         args.run_name,
         "--used_result_file",
@@ -190,13 +190,13 @@ def _append_vllm_lora_supervisor(cmd: list[str], args: argparse.Namespace) -> No
 
 
 def plan_file_basename(args: argparse.Namespace) -> str:
-    from stride.paths import meta_plan_relative_for_supervisor
+    from paths import meta_plan_relative_for_supervisor
 
     return meta_plan_relative_for_supervisor(args.meta_write_name)
 
 
 def used_result_relpath(args: argparse.Namespace, plan_basename: str) -> str:
-    from stride.paths import supervisor_result_relpath
+    from paths import supervisor_result_relpath
 
     return supervisor_result_relpath(
         plan_basename,
@@ -219,7 +219,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--run_name",
         default=None,
-        help="Output subfolder under stride/meta_plans/ and stride/output/ (default: stem of input_jsonl)",
+        help="Output subfolder under meta_plans/ and output/ (default: stem of input_jsonl)",
     )
     p.add_argument(
         "--index_corpus",
@@ -305,7 +305,7 @@ def main(argv: list[str] | None = None) -> None:
         print(f"[stride] Fallback uses supervisor output: {used}", flush=True)
         run_fallback(args, used, plan_bn)
     else:
-        print("[stride] Fallback skipped. Evaluate: python -m stride.eval <jsonl>", flush=True)
+        print("[stride] Fallback skipped. Evaluate: python -m run_eval <jsonl>", flush=True)
 
 
 if __name__ == "__main__":

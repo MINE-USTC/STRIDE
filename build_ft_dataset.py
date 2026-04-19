@@ -2,7 +2,7 @@
 Build STRIDE-FT training jsonl from pipeline trajectory logs (four modules).
 
 **Supervised (SFT):** Reasoner, Supervisor, Extractor → ``instruction`` / ``input`` /
-``output`` → ``stride.ft_preprocess`` → ``stride.lora_ft``.
+``output`` → ``ft_preprocess`` → ``lora_ft``.
 
 **Extractor** uses two steps: ``extractor-intermediate`` (mine sub-questions + fact
 lists from logs only) then ``extractor-sft`` (attach Contriever top-k documents and
@@ -12,7 +12,7 @@ minimized_context``.
 
 **Meta-Planner (DPO):** ``meta-dpo`` reads **K** aligned supervisor outputs and **K**
 meta-plan jsonl files (same ids / line order per trajectory), scores trajectories,
-and writes ``prompt`` / ``chosen`` / ``rejected`` for ``stride.lora_dpo``.
+and writes ``prompt`` / ``chosen`` / ``rejected`` for ``lora_dpo``.
 """
 
 from __future__ import annotations
@@ -29,15 +29,15 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 import jsonlines
 from tqdm import tqdm
 
-from stride.contriever_model import load_contriever_and_tokenizer
-from stride.metrics import check_none_answer, convert_boolean_answer
-from stride.my_retriever import DenseRetriever
-from stride.paths import stride_root
-from stride.utils import cover_em_score, exact_match_score, f1_score
+from contriever_model import load_contriever_and_tokenizer
+from metrics import check_none_answer, convert_boolean_answer
+from my_retriever import DenseRetriever
+from paths import stride_root
+from utils import cover_em_score, exact_match_score, f1_score
 
 
 def _extract_plans(meta_plan: str) -> str:
-    """Strip meta text down to the concrete plan block (same logic as ``stride.supervisor``)."""
+    """Strip meta text down to the concrete plan block (same logic as ``supervisor``)."""
     try:
         need_str = re.findall(r"(Concrete Plan:.*)", meta_plan, re.DOTALL)[0].strip()
         return need_str.replace("Concrete Plan:", "Plan:")

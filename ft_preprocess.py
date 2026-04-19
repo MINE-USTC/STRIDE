@@ -3,7 +3,7 @@ Tokenize supervised fine-tuning jsonl into a HuggingFace ``Dataset`` on disk.
 
 Each input line must be a JSON object with keys ``instruction``, ``input``, and
 ``output`` (already filtered / formatted for the target module). This module does
-not build or filter those rows from pipeline logs—that happens outside ``stride``.
+not build or filter those rows from pipeline logs—that happens outside this package tree.
 """
 
 from __future__ import annotations

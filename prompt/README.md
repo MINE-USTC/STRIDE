@@ -1,6 +1,6 @@
 # Prompts shipped with STRIDE
 
-These files match the **default** CLI flags in `stride.pipeline` / `meta_planer` / `supervisor` / `fallback_qa`:
+These files match the **default** CLI flags in `pipeline` / `meta_planer` / `supervisor` / `fallback_qa`:
 
 | File | Role | Default flag |
 |------|------|----------------|

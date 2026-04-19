@@ -9,7 +9,7 @@ import jsonlines
 import swanlab
 from swanlab.integration.transformers import SwanLabCallback
 
-from stride.paths import default_ft_dpo_output
+from paths import default_ft_dpo_output
 
 
 if __name__ == "__main__":

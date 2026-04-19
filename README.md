@@ -14,7 +14,7 @@ STRIDE is a hierarchical framework for multi-hop question answering with retriev
 git clone <repository-url>
 cd <repository>
 pip install -r requirements.txt
-python -m stride.pipeline --help
+python -m pipeline --help
 ```
 
 ## Layout
@@ -28,7 +28,7 @@ python -m stride.pipeline --help
 | Build corpus FAISS index (CLI) | `build_corpus_index.py` |
 | Prompts (defaults only) | `prompt/` — see `prompt/README.md` |
 | End-to-end driver | `pipeline.py` |
-| Metrics | `eval.py`, `metrics.py`, `utils.py` |
+| Metrics | `run_eval.py`, `metrics.py`, `utils.py` |
 | Fine-tuning | `lora_ft.py`, `lora_dpo.py`, `ft_preprocess.py` |
 | SFT jsonl from trajectories | `build_ft_dataset.py` |
 | vLLM LoRA helpers | `vllm_lora.py` |
@@ -39,7 +39,7 @@ By default, runs write next to the code modules: **`meta_plans/<run_name>/`**, *
 
 ## Data and run layout
 
-- **`--input_jsonl`** — Path to your split (train, dev, or test). Each line should include at least **`id`** and **`question`** in the format expected by the rest of the pipeline. The **same file** is read by the Meta-Planner and the Supervisor in `stride.pipeline`.
+- **`--input_jsonl`** — Path to your split (train, dev, or test). Each line should include at least **`id`** and **`question`** in the format expected by the rest of the pipeline. The **same file** is read by the Meta-Planner and the Supervisor in `pipeline`.
 - **`--run_name`** — Names one run directory under `meta_plans/` and `output/`. Default: sanitized stem of `input_jsonl` (for example `/data/hotpotqa/dev.jsonl` → `dev`).
 - **`--index_corpus`** — Optional. Used with **`--faiss_index_path`**: the substring **`dataset`** in that path is replaced by this value so the resolved directory matches your indexed corpus (see Retrieval). Defaults to **`run_name`** if omitted.
 
@@ -47,7 +47,7 @@ There is no extra data-mode switch: you choose which jsonl to pass.
 
 ## Retrieval
 
-Retrieval is **not** used in the Meta-Planner. It runs inside **`stride.supervisor`** (when the plan uses `retrieve` / `rewrite` actions) and inside **`stride.fallback_qa`** (extra passages for questions with no main answer). Both call **`DenseRetriever.load_index`**, which expects exactly the layout produced by **`DenseRetriever.save_index`** (or by **`python -m stride.build_corpus_index`** below).
+Retrieval is **not** used in the Meta-Planner. It runs inside **`supervisor`** (when the plan uses `retrieve` / `rewrite` actions) and inside **`fallback_qa`** (extra passages for questions with no main answer). Both call **`DenseRetriever.load_index`**, which expects exactly the layout produced by **`DenseRetriever.save_index`** (or by **`python -m build_corpus_index`** below).
 
 ### On-disk index layout (must match inference)
 
@@ -65,7 +65,7 @@ At query time, **`retrieve` / `batch_retrieve`** return dicts **`{text, title, s
 ### Building an index (recommended CLI)
 
 ```bash
-python -m stride.build_corpus_index \
+python -m build_corpus_index \
   --input_jsonl /path/to/train_or_dev.jsonl \
   --output_dir faiss_index/hotpotqa/index \
   --format stride_contexts \
@@ -75,15 +75,15 @@ python -m stride.build_corpus_index \
 - **`--format stride_contexts`** — each jsonl line is a STRIDE object with **`contexts`** (and optionally **`pinned_contexts`**): entries use **`title`** and **`paragraph_text`** (same structure as QA jsonl in this codebase). Passages are **deduped** across the file by content hash unless you pass **`--no_dedupe`**.
 - **`--format records`** — each line is a standalone record with **`title`** and **`text`** (or **`paragraph_text`**).
 
-Use the **same** **`--retriever_model_path`** when running **`stride.pipeline`** / **`stride.supervisor`**.
+Use the **same** **`--retriever_model_path`** when running **`pipeline`** / **`supervisor`**.
 
 Implementation: **`build_corpus_index.py`** (calls **`add_docs`** then **`save_index`** — identical stack to a manual script).
 
 Optional: **`notebooks/build_index.ipynb`** for a tiny interactive smoke test.
 
-### How `stride.pipeline` passes retrieval settings
+### How `pipeline` passes retrieval settings
 
-`python -m stride.pipeline` forwards these arguments to **`stride.supervisor`** and **`stride.fallback_qa`** (not to the Meta-Planner):
+`python -m pipeline` forwards these arguments to **`supervisor`** and **`fallback_qa`** (not to the Meta-Planner):
 
 | Flag | Role |
 |------|------|
@@ -100,7 +100,7 @@ If your index lives at a path **without** the placeholder word `dataset`, set **
 ```bash
 export CUDA_VISIBLE_DEVICES=0,1
 
-python -m stride.pipeline \
+python -m pipeline \
   --input_jsonl /path/to/your_split.jsonl \
   --model_path /path/to/generative/model \
   --tensor_parallel_size 2 \
@@ -116,7 +116,7 @@ python -m stride.pipeline \
 - **`--skip_meta`** / **`--skip_supervisor`** resume from existing jsonl under `meta_plans/<run_name>/` and `output/<run_name>/`.
 - Override file names with **`--meta_write_name`**, **`--supervisor_write_name`**, prompt file flags, etc., if needed.
 
-You can also run **`stride.meta_planer`**, **`stride.supervisor`**, or **`stride.fallback_qa`** directly; they expose the same retrieval flags where applicable.
+You can also run **`meta_planer`**, **`supervisor`**, or **`fallback_qa`** directly (`python -m …`); they expose the same retrieval flags where applicable.
 
 ## Fine-tuning (STRIDE-FT)
 
@@ -127,18 +127,18 @@ Four modules: **Meta-Planner** (DPO), **Supervisor**, **Extractor**, **Reasoner*
 **Meta DPO:** run Meta-Planner + Supervisor **K** times on the same questions (e.g. 8 seeds). `meta-dpo` reads **K** aligned supervisor + plan jsonl paths and emits `prompt` / `chosen` / `rejected`.
 
 ```bash
-python -m stride.build_ft_dataset reasoner \
+python -m build_ft_dataset reasoner \
   --input_jsonl output/<run>/<supervisor>.jsonl \
   --output_jsonl ft_data/reasoner/train.jsonl \
   --max_examples 5000
 
-python -m stride.build_ft_dataset extractor-intermediate \
+python -m build_ft_dataset extractor-intermediate \
   --input_jsonl output/<run>/<supervisor>.jsonl \
   --corpus_name hotpotqa \
   --output_jsonl ft_data/extractor/intermediate_hotpot.jsonl \
   --max_examples 5000
 
-python -m stride.build_ft_dataset extractor-sft \
+python -m build_ft_dataset extractor-sft \
   --input_jsonl ft_data/extractor/intermediate_hotpot.jsonl \
   --output_jsonl ft_data/extractor/sft_hotpot.jsonl \
   --retriever_model_path facebook/contriever \
@@ -146,12 +146,12 @@ python -m stride.build_ft_dataset extractor-sft \
   --context_field context \
   --max_examples 5000
 
-python -m stride.build_ft_dataset supervisor \
+python -m build_ft_dataset supervisor \
   --run output/<run>/<supervisor>.jsonl meta_plans/<run>/<plan>.jsonl \
   --output_jsonl ft_data/supervisor/train.jsonl \
   --max_examples 5000
 
-python -m stride.build_ft_dataset meta-dpo \
+python -m build_ft_dataset meta-dpo \
   --supervisor_traj output/.../1/<supervisor>.jsonl \
   --supervisor_traj output/.../2/<supervisor>.jsonl \
   --meta_plan_traj meta_plans/.../1/<plan>.jsonl \
@@ -163,27 +163,27 @@ python -m stride.build_ft_dataset meta-dpo \
 
 **Model path at each step:**
 
-1. **`stride.ft_preprocess`** — `--model_path` for the tokenizer used to build the supervised dataset.
-2. **`stride.lora_ft`** — `--model_path` is the base causal LM; adapters go to `--output_dir` (default `ft_models/reasoner/` under the code directory).
-3. **`stride.lora_dpo`** — `--model_path` is the base or SFT checkpoint; `--data_path` is a jsonl with `prompt`, `chosen`, `rejected`.
+1. **`ft_preprocess`** — `--model_path` for the tokenizer used to build the supervised dataset.
+2. **`lora_ft`** — `--model_path` is the base causal LM; adapters go to `--output_dir` (default `ft_models/reasoner/` under the code directory).
+3. **`lora_dpo`** — `--model_path` is the base or SFT checkpoint; `--data_path` is a jsonl with `prompt`, `chosen`, `rejected`.
 
 ```bash
-python -m stride.ft_preprocess \
+python -m ft_preprocess \
   --input_jsonl /path/to/train_shard.jsonl \
   --model_path /path/to/base/model
 
-python -m stride.lora_ft \
+python -m lora_ft \
   --model_path /path/to/base/model \
   --data_path /path/to/preprocessed_dataset \
   --output_dir ft_models/reasoner
 
-python -m stride.lora_dpo \
+python -m lora_dpo \
   --model_path /path/to/base/or/sft/model \
   --data_path /path/to/dpo.jsonl \
   --output_dir ft_models/dpo
 ```
 
-**Hyperparameters used for the reported Qwen3-8B LoRA adapters** (override `stride.lora_ft` defaults with `--lr`, `--epoch`, `--batch_size`, and set `--output_dir` per module):
+**Hyperparameters used for the reported Qwen3-8B LoRA adapters** (override `lora_ft` defaults with `--lr`, `--epoch`, `--batch_size`, and set `--output_dir` per module):
 
 | Module | Learning rate | Epochs | Per-device batch size | Last saved step (`global_step`) |
 |--------|---------------|--------|-------------------------|----------------------------------|
@@ -210,7 +210,7 @@ After training **separate** PEFT adapters for Meta-Planner, Supervisor, Extracto
 Tune **`--max_lora_rank`** and **`--max_loras`** when loading several adapters or large ranks (should be consistent with training).
 
 ```bash
-python -m stride.pipeline \
+python -m pipeline \
   --input_jsonl /path/to/data.jsonl \
   --model_path /path/to/base_model \
   --faiss_index_path faiss_index/dataset/index \
@@ -221,7 +221,7 @@ python -m stride.pipeline \
   --lora_reasoner /path/to/r_lora
 ```
 
-Omit a `--lora_*` flag to use **base** weights for that stage. Subcommands (`stride.meta_planer`, `stride.supervisor`, …) accept the same LoRA flags as `stride.pipeline`.
+Omit a `--lora_*` flag to use **base** weights for that stage. The same LoRA flags work on `meta_planer`, `supervisor`, and `fallback_qa` when invoked with `python -m …`.
 
 ## Data sources
 
@@ -234,35 +234,35 @@ We subsample **10,000** train questions per corpus (`data_prep sample_train`); t
 1. If needed, convert upstream jsonl to this repo’s QA format (`data_prep.py`, `convert_upstream_to_stride`).
 2. **Train subsample** (10k, fixed seed):
    ```bash
-   python -m stride.data_prep sample_train \
+   python -m data_prep sample_train \
      --upstream_train /path/to/full_train.jsonl \
      --output processed_data/train_subsampled_10k.jsonl \
      --n 10000 --seed 42
    ```
 3. **Extended test** — fixed dev/test slice plus extras from full train, excluding ids in the 10k train file:
    ```bash
-   python -m stride.data_prep merge_test \
+   python -m data_prep merge_test \
      --base_test processed_data/hotpotqa/test.jsonl \
      --upstream_train /path/to/full_train.jsonl \
      --train_sample processed_data/train_subsampled_10k.jsonl \
      --output processed_data/hotpotqa/test_1000.jsonl \
      --extra_n 500 --seed 42
    ```
-4. Optional: `python -m stride.data_prep check_overlap processed_data/train_subsampled_10k.jsonl processed_data/hotpotqa/test_1000.jsonl`
+4. Optional: `python -m data_prep check_overlap processed_data/train_subsampled_10k.jsonl processed_data/hotpotqa/test_1000.jsonl`
 5. Build `faiss_index/` with `build_corpus_index` (see **Retrieval**).
 
 ## Evaluation
 
-Point `stride.eval` at the Supervisor (or merged) prediction jsonl under `output/<run_name>/...`:
+Run **`python -m run_eval`** on the Supervisor (or merged) prediction jsonl under `output/<run_name>/...`:
 
 ```bash
-python -m stride.eval output/<run_name>/<plan_version_dir>/stride_top5.jsonl
+python -m run_eval output/<run_name>/<plan_version_dir>/stride_top5.jsonl
 ```
 
 Optional merge with fallback output by example id:
 
 ```bash
-python -m stride.eval output/<run_name>/plan/stride_top5.jsonl \
+python -m run_eval output/<run_name>/plan/stride_top5.jsonl \
   --fallback-jsonl output/<run_name>/plan/plan-stride_top5-fallback_qa.jsonl \
   --json-out metrics.json
 ```
@@ -273,4 +273,4 @@ Reported metrics: **EM**, **F1**, **precision**, **recall**.
 
 ## Reference
 
-Cite the STRIDE paper for this codebase.
+Cite the STRIDE paper for this codebase. For upstream QA data, see [IRCoT](https://github.com/stonybrooknlp/ircot).

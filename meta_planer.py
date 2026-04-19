@@ -8,9 +8,9 @@ import sys
 import argparse
 from vllm import LLM
 
-from stride.paths import default_run_name
-from stride.utils import chat_vllm
-from stride.vllm_lora import any_lora_paths, llm_lora_init_kwargs, make_lora_request
+from paths import default_run_name
+from utils import chat_vllm
+from vllm_lora import any_lora_paths, llm_lora_init_kwargs, make_lora_request
 
 STRIDE_ROOT = Path(__file__).resolve().parent
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
         "--run_name",
         type=str,
         default=None,
-        help="Subfolder under stride/meta_plans/ for this run (default: stem of input_jsonl)",
+        help="Subfolder under meta_plans/ for this run (default: stem of input_jsonl)",
     )
     parser.add_argument(
         "--write_file_name", default='meta_plan', type=str, help="Output jsonl base name (no suffix for system prompt)"

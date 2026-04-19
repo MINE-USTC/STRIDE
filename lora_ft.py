@@ -6,7 +6,7 @@ import swanlab
 from swanlab.integration.transformers import SwanLabCallback
 from peft import LoraConfig, TaskType, get_peft_model
 
-from stride.paths import default_ft_reasoner_output
+from paths import default_ft_reasoner_output
 
 
 MAX_LENGTH = 1024
@@ -27,7 +27,7 @@ if __name__ == "__main__":
         "--data_path",
         required=True,
         type=str,
-        help="Training data: Hugging Face Dataset directory from stride.ft_preprocess (save_to_disk)",
+        help="Training data: Hugging Face Dataset directory from ft_preprocess (save_to_disk)",
     )
     parser.add_argument(
         "--data_mode", type=str, default='v1', help="Suffix for SwanLab run name"

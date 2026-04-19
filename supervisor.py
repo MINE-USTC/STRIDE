@@ -10,13 +10,13 @@ import argparse
 import re
 import time
 
-from stride.contriever_model import load_contriever_and_tokenizer
-from stride.my_retriever import DenseRetriever
-from stride.paths import default_run_name
-from stride.utils import chat_vllm
-from stride.vllm_lora import any_lora_paths, llm_lora_init_kwargs, make_lora_request
+from contriever_model import load_contriever_and_tokenizer
+from my_retriever import DenseRetriever
+from paths import default_run_name
+from utils import chat_vllm
+from vllm_lora import any_lora_paths, llm_lora_init_kwargs, make_lora_request
 
-STRIDE_ROOT = Path(__file__).resolve().parent
+STRIDE_ROOT = Path(__file__).resolve().parent  # code / repository root (flat layout)
 
 
 ### 从meta_plan中提取Concrete Plan
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         '--plan_file_path',
         type=str,
         default=None,
-        help="meta plan root (default: stride/meta_plans)",
+        help="meta plan root (default: meta_plans)",
     )
     parser.add_argument(
         '--plan_file_name', type=str, default='meta_plan.jsonl', help="meta plan filename under meta_plans/<run_name>/",
@@ -112,7 +112,7 @@ if __name__ == '__main__':
         '--faiss_index_path',
         type=str,
         default=None,
-        help="path with literal 'dataset' (replaced by corpus name); default: stride/faiss_index/dataset/index",
+        help="path with literal 'dataset' (replaced by corpus name); default: faiss_index/dataset/index",
     )
     parser.add_argument(
         '--max_iteration', type=int, default=5, help="max iteration for supervisor"

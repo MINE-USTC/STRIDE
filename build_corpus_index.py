@@ -8,7 +8,7 @@ Typical source: STRIDE-format jsonl where each line has a ``contexts`` list of
 Usage (from the directory that contains ``pipeline.py``, with its parent on
 ``PYTHONPATH``)::
 
-    python -m stride.build_corpus_index \\
+    python -m build_corpus_index \\
         --input_jsonl /path/to/train_or_dev.jsonl \\
         --output_dir faiss_index/hotpotqa/index \\
         --format stride_contexts
@@ -23,8 +23,8 @@ from typing import Iterable, Iterator
 
 import jsonlines
 
-from stride.contriever_model import load_contriever_and_tokenizer
-from stride.my_retriever import DenseRetriever
+from contriever_model import load_contriever_and_tokenizer
+from my_retriever import DenseRetriever
 
 
 def _fingerprint(title: str, text: str) -> str:
@@ -128,7 +128,7 @@ def build_index(
 
 def main() -> None:
     p = argparse.ArgumentParser(
-        description="Build FAISS + vecstore index compatible with stride.supervisor / fallback_qa.",
+        description="Build FAISS + vecstore index compatible with supervisor / fallback_qa.",
     )
     p.add_argument("--input_jsonl", type=Path, required=True, help="Source jsonl")
     p.add_argument(

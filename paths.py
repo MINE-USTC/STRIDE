@@ -1,4 +1,4 @@
-"""Path helpers for STRIDE outputs (under stride/)."""
+"""Path helpers for STRIDE outputs (repository / code root)."""
 
 from __future__ import annotations
 
@@ -14,7 +14,8 @@ def stride_root() -> Path:
 
 
 def repo_root() -> Path:
-    return _STRIDE_ROOT.parent
+    """Same as code root when the repo is the flat package layout."""
+    return _STRIDE_ROOT
 
 
 def default_run_name(input_jsonl: str) -> str:
@@ -91,10 +92,10 @@ def resolve_supervisor_jsonl(
 
 
 def default_ft_reasoner_output() -> str:
-    """Default directory for supervised LoRA checkpoints (under stride/)."""
+    """Default directory for supervised LoRA checkpoints."""
     return str(_STRIDE_ROOT / "ft_models" / "reasoner")
 
 
 def default_ft_dpo_output() -> str:
-    """Default directory for DPO checkpoints (under stride/)."""
+    """Default directory for DPO checkpoints."""
     return str(_STRIDE_ROOT / "ft_models" / "dpo")
