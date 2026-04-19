@@ -69,3 +69,44 @@ Q3: What areas are contained within New York?
 Q4: Which areas are both bordering the administrative entity and contained within New York?
 
 ---
+
+### Example 3
+
+Question:
+What sport is associated with the position played or specialized in by both Carlos Ruiz and Jack Warner?
+
+Output:
+
+General Strategy: 
+Step1: Identify the positions associated with the two people.
+Step2: Find the common position shared by both individuals.
+Step3: Identify the sport linked to that position.
+Step4: Return the sport as the final answer (answer type: *sport*).
+
+Concrete Plan: 
+Q1: What position did Carlos Ruiz play or specialize in?
+Q2: What position did Jack Warner play or specialize in?
+Q3: What position is common to both Carlos Ruiz and Jack Warner?
+Q4: What sport is associated with that shared position?
+
+---
+
+### Example 4
+
+Question:
+What is the official language of the location associated with the main subject of The Quiet American?
+
+Output:
+
+General Strategy: 
+Step1: Identify the main subject of the given work.
+Step2: Identify the location associated with that subject.
+Step3: Retrieve the official language of that location.
+Step4: Return the language as the final answer (answer type: *language*).
+
+Concrete Plan: 
+Q1: Who is the main subject of The Quiet American?
+Q2: What location is associated with that subject?
+Q3: What is the official language of that location?
+
+---

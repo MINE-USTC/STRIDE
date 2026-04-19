@@ -1,0 +1,16 @@
+Based on the provided information and your own knowledge, answer the following question by thinking step by step. 
+
+Plan content here
+
+Documents:
+Documents content here
+
+Question:
+Question here
+
+---
+
+Output Format:
+Please provide your response in a single-line JSON format with the following fields:
+- 'analysis': A step-by-step explanation.
+- 'answer': Direct answer without additional explanations or notes.

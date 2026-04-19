@@ -1,0 +1,16 @@
+# Core STRIDE inference + FT (adjust versions for your CUDA stack)
+# FAISS: use faiss-gpu when CUDA is available. Import is always `import faiss` (same API as faiss-cpu).
+# CPU-only: `pip install faiss-cpu` and remove/replace faiss-gpu.
+torch>=2.1
+transformers>=4.40
+vllm>=0.6.0
+jsonlines
+tqdm
+numpy
+faiss-gpu
+sentencepiece
+accelerate
+peft
+trl
+datasets
+swanlab

@@ -46,7 +46,7 @@ Constraints:
 
 ---
 
-### Example 1
+### Example 1: Sequential execution
 
 Question:
 What is the official language of the location associated with the main subject of *The Quiet American*?
@@ -75,7 +75,7 @@ Supervisor Output:
 
 ---
 
-### Example 2
+### Example 2: Handling rewrite after failed query
 
 Question:
 What city is the birthplace of the author of *Pride and Prejudice*?
@@ -97,6 +97,69 @@ Supervisor Output:
     "qid": "Q2",
     "action": "rewrite",
     "query": "city where Jane Austen was born"
+  }
+]
+```
+
+---
+
+### Example 3: Parallel execution
+
+Question:
+Where did both Jimmy Carter and John Wells receive education?
+
+Plan:
+Q1 : Where did Jimmy Carter receive education?
+Q2 : Where did John Wells receive education?
+Q3 : Identify the place(s) that appear in both Q1 and Q2’s answers.
+
+Progress: 
+Solved: {}
+Pending: [Q1, Q2, Q3]
+FailureLog: {}
+
+Supervisor Output:
+
+```json
+[
+  {
+    "qid": "Q1",
+    "action": "retrieve",
+    "query": "educational institutions attended by Jimmy Carter"
+  },
+  {
+    "qid": "Q2",
+    "action": "retrieve",
+    "query": "educational institutions attended by John Wells"
+  }
+]
+```
+
+---
+
+### Example 4: Sub-question that require reasoning
+
+Question: 
+What genres do the films The Bourne Identity and Spy Kids share?
+
+Plan: 
+Q1: What is the genre of The Bourne Identity?
+Q2: What is the genre of Spy Kids?
+Q3: Which genres are shared by both films?
+
+Progress:
+Solved: {Q1: "Action, Thriller and Drama", Q2: "Action, Family, Comedy and Adventure"}
+Pending: [Q3]
+FailureLog: {}
+
+Supervisor Output:
+
+```json
+[
+  {
+    "qid": "Q3",
+    "action": "answer",
+    "query": "What genres do the films The Bourne Identity and Spy Kids share?"
   }
 ]
 ```

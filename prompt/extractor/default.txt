@@ -53,3 +53,44 @@ Output:
 ["Isaac Newton was born in Woolsthorpe, Lincolnshire, England."]
 
 ---
+
+### Example 3 
+
+Question:
+Who founded Microsoft?
+
+Documents:
+Title: Microsoft History
+Microsoft is an American multinational technology company headquartered in Redmond, Washington.
+
+Title: Microsoft Founders
+Microsoft was founded in 1975 by Bill Gates and Paul Allen in Albuquerque, New Mexico.
+
+Title: Microsoft Products
+The company is best known for its Windows operating system and Office productivity suite.
+
+
+Output:
+["Microsoft was founded by Bill Gates.", "Microsoft was founded by Paul Allen."]
+
+---
+
+### Example 4 
+
+Question:
+What awards has the novel *To Kill a Mockingbird* won?
+
+Documents:
+Title: Book Summary
+To Kill a Mockingbird* is a novel by Harper Lee published in 1960. It deals with serious issues like racial injustice in the American South.
+
+Title: Awards and Recognition
+To Kill a Mockingbird won the Pulitzer Prize for Fiction in 1961. It is widely taught in schools across the United States.
+
+Title: Adaptations
+To Kill a Mockingbird was adapted into a successful 1962 film, which itself won three Academy Awards.
+
+Output:
+["To Kill a Mockingbird won the Pulitzer Prize for Fiction."]
+
+---

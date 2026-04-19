@@ -5,8 +5,9 @@ Output must be a JSON object with the following keys:
 ```json
 {
     'analysis': <A step-by-step explanation>
-    'answer': <Direct answer>
+    'answer': <Direct answer without additional explanations or notes>
 }
 ```
 
 ---
+
