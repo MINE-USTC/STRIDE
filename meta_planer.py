@@ -89,12 +89,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     run_name = args.run_name if args.run_name else default_run_name(args.input_jsonl)
 
-    '''
-    Meta-Plan
-    
-    对问题进行plan，让 LLM 自己从问题里抽象出 general strategy，再细化为 concrete plan 和 retrieval queries。
-    '''
-
     batch_size = args.batch_size
     model_path = args.model_path
     use_lora = any_lora_paths(args.lora_meta)
@@ -119,7 +113,7 @@ if __name__ == '__main__':
     prompt_path = STRIDE_ROOT / "prompt" / "meta_plan" / f"{args.prompt_file}.txt"
     with open(prompt_path, "r", encoding="utf-8") as f:
         full_prompt = f.read()
-    ### prompt留的位置，用于后续替换
+        
     if 'Qwen3' in model_path:
         args.use_qwen3 = True
     else:
